@@ -30,7 +30,7 @@ class Servo:
         # Step 1: turn on 5v power line (will need to know GPIO pin)
         print "Starting the servo! Turn on the 5v line"
         # Step 2: start PWM
-        PWM.start(servo_pin, self.angle, 60.0)
+        PWM.start(self.servo_pin, self.angle, 60.0)
         # Step 3: set running flag to true
         self.running = True
         return
@@ -38,7 +38,7 @@ class Servo:
     # Still need to implement powering off
     def stop(self):
         print "Stopping the servo! Turn off the 5v line"
-        PWM.stop(servo_pin)
+        PWM.stop(self.servo_pin)
         PWM.cleanup()
         self.running = False
         return
@@ -53,12 +53,13 @@ class Servo:
     # If the servo is not currently on (self.running == True) then only the
     # self.angle variable is changed. Otherwise the PWM duty cycle is also
     # changed.
-    def set_angle(self, angle, clamp = true):
+    def set_angle(self, angle, clamp = True):
         if clamp: self.angle = float(self.clamp(angle))
         else: self.angle = float(angle)
         if self.running:
             duty = self.angle / 180. * self.duty_span + self.duty_min
-            PWM.set_duty_cycle(servo_pin, duty)
+            PWM.set_duty_cycle(self.servo_pin, duty)
+        print str(self.angle)
         return
 
 def main():
