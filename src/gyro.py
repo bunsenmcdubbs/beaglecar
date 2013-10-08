@@ -18,9 +18,9 @@ def sleep(i2c):
 # The device must be still for calibration
 def zero(i2c):
     sum = 0
-    for x in range(0,100):
+    for x in range(0,200):
         sum += read(i2c, 0)
-    zeroPoint = sum / 100.
+    zeroPoint = sum / 200.
     # print ("zero point = " + str(zeroPoint))
     return zeroPoint
 
@@ -42,7 +42,7 @@ def read(i2c, zeroPoint = 0):
 def talker(i2c):
     # starts publisher on topic 'chatter'
     # and data type Float 32
-    pub = rospy.Publisher('chatter', Float32)
+    pub = rospy.Publisher('turn_rate', Float32)
     # starts the node with name "talker"
     rospy.init_node('talker')
     # wakes up the i2c device
