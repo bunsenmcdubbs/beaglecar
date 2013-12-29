@@ -7,7 +7,7 @@ i2c = Adafruit_I2C(0x68)
 
 # wake up the device (out of sleep mode)
 # bit 6 on register 0x6B set to 0
-i2c.write16(0x6B, 0)
+i2c.write8(0x6B, 0)
 
 print("X axis accelerations (in g's)")
 
