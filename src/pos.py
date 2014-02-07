@@ -13,6 +13,7 @@ def callback(data):
     global last_time
     curr_time = current_milli_time()
     t_elapsed = (curr_time - last_time) / 1000.
+    last_time = curr_time
     print(str(t_elapsed))
     angle = angle + data.data * t_elapsed
     rospy.loginfo(rospy.get_name() + "\n" + str(angle))
