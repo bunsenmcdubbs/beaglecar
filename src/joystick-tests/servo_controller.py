@@ -59,7 +59,7 @@ class Servo:
         if self.running:
             duty = self.angle / 180. * self.duty_span + self.duty_min
             PWM.set_duty_cycle(self.servo_pin, duty)
-        print str(self.angle)
+        # print str(self.angle)
         return
 
 def main():

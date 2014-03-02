@@ -27,9 +27,9 @@ limit2 = angle
 
 # turning left
 while not GPIO.input(pin1) and not GPIO.input(pin2):
-    angle += .5
+    angle += .01
     servo.set_angle(angle)
-    time.sleep(.05)
+    time.sleep(.0001)
 limit1 = angle
 time.sleep(1)
 
@@ -40,9 +40,9 @@ time.sleep(.2)
 
 # turning right
 while not GPIO.input(pin1) and not GPIO.input(pin2):
-    angle -= .5
+    angle -= .01
     servo.set_angle(angle)
-    time.sleep(.05)
+    time.sleep(.0001)
 limit2 = angle
 time.sleep(1)
 
