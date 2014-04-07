@@ -3,24 +3,27 @@ import rospy
 import sys
 from sensor_msgs.msg import NavSatFix
 
-count = 60.
+count = 300.
 curr_count = 0
-lon = 0
-lat = 0
+a = []
 
 def callback (loc):
     global curr_count
-    global lon
-    global lat
     if curr_count >= count :
+        lon = 0
+        lat = 0
+        for i in range(int(count)):
+            lon += a[i][0] / count
+            lat += a[i][1] / count
         print "final average " + str(lat) + ", " + str(lon)
         sys.exit()
-    curr_count += 1
     tlon = loc.longitude
     tlat = loc.latitude
     print str(curr_count) + " " + str(tlat) + ", " + str(tlon)
-    lon += tlon / count
-    lat += tlat / count
+    a.append([])
+    a[curr_count].append(tlon)
+    a[curr_count].append(tlat)
+    curr_count += 1
 
 def main ():
     rospy.Subscriber("fix", NavSatFix, callback)
