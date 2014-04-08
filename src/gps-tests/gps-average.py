@@ -1,28 +1,33 @@
 #!/usr/bin/env python
 import rospy
-import sys
 from sensor_msgs.msg import NavSatFix
+import simplekml
 
 count = 300.
 curr_count = 0
-a = []
+lon = 0.
+lat = 0.
+
+kml = simplekml.Kml()
 
 def callback (loc):
     global curr_count
-    if curr_count >= count :
-        lon = 0
-        lat = 0
-        for i in range(int(count)):
-            lon += a[i][0] / count
-            lat += a[i][1] / count
+    global lon
+    global lat
+    if curr_count == count :
         print "final average " + str(lat) + ", " + str(lon)
-        sys.exit()
+        kml.newpoint(name="average", coords=[(lon, lat)])
+        kml.save("gpsaverage.kml")
+        curr_count += 1
+        return
+    elif curr_count > count :
+        return
     tlon = loc.longitude
     tlat = loc.latitude
+    kml.newpoint(name=str(curr_count), coords=[(tlon,tlat)])
     print str(curr_count) + " " + str(tlat) + ", " + str(tlon)
-    a.append([])
-    a[curr_count].append(tlon)
-    a[curr_count].append(tlat)
+    lon += tlon / count
+    lat += tlat / count
     curr_count += 1
 
 def main ():
