@@ -44,8 +44,7 @@ def make_header():
   header = Header()
   header.seq = seq
   seq += 1
-  time = Time()
-  time.data = current_time();
+  time = rospy.get_rostime()
   header.stamp = time
   header.frame_id = "0"
   return header
