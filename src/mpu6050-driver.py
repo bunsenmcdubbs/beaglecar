@@ -69,7 +69,7 @@ def talker():
 
   global pub
   pub = rospy.Publisher('mpu6050', Imu)
-  rospy.init_node('Joy2Turtle')
+  rospy.init_node('MPU6050-Driver')
 
   #calibrate(imu, accel+gyro, samples = 0)
 
