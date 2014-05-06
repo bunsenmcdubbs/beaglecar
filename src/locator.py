@@ -98,7 +98,25 @@ def gps(loc):
   return
 
 # IMPLEMENT!!!
-def imu(twist):
+def imu(data):
+  # getting the necessary data from the imu readings
+  xAccel = data.linear_acceleration.x
+  zTurn = data.angular_velocity.z
+  
+  timeElapsed = updateTime(data.header.stamp)
+  
+  global vel, twist
+  # checking for significance, greater than noise threshold
+  if math.fabs(xAccel) > 0.1: # !!!! DUMMY VALUE ... NEEDS TESTING
+    # setting newest velocity and twist estimates
+    vel = vel + xAccel * timeElapsed
+  if math.fabs(zTurn) > 0.1: # !!!! DUMMY VALUE ... NEEDS TESTING
+    twist = zTurn
+  else:
+    twist = 0
+  
+  global imu_pose
+  
   return
 
 def main():
