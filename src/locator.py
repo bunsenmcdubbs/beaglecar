@@ -111,7 +111,7 @@ def main():
   # sets up the publisher
   global pub
   pub = rospy.Publisher('loc', Pose2D) # publishes Pose2D messages on the loc topic
-  rospy.init_node('navigator')
+  rospy.init_node('locator')
   
   global time
   time = rospy.get_rostime()
