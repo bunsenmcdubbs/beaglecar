@@ -11,6 +11,7 @@ twist = 0 # radians / second
 # in easting and northing from origin
 pose = Pose2D()
 imu_pose = Pose2D()
+gps_pose = Pose2D()
 
 origin = Pose2D()
 origin.x = -71.43945
@@ -55,9 +56,13 @@ def gps(loc):
   
   # special edge case if the car is in initialization
   # first estimate is 100% GPS
-  global init_phase
+  global init_phase, gps_pose
   if init_phase:
     init_phase = False
+    
+    gps_pose.x = easting
+    gps_pose.y = northing
+    
     gpsTrust = 1.0
     imuTrust = 0.0
     print "initialization phase"
@@ -85,10 +90,18 @@ def gps(loc):
   pose.y = northing * gpsTrust + imu_pose.y * imuTrust
   # continue for heading estimate when not jumping
   if not jumping:
-    pose.theta = math.atan2(northing, easting) * gpsTrust + imu_pose.theta * imuTrust
+    # currently 100% using gps for heading
+    pose.theta = math.atan2(gps_pose.y - northing, gps_pose.x - easting) * gpsTrust # + imu_pose.theta * imuTrust
+  else:
+    pose.theta = imu_pose.theta
   
   # reset the imu/dead reckoning guess to the latest estimate
   imu_pose = pose
+  
+  # update gps_pose with latest raw gps data
+  gps_pose.x = easting
+  gps_pose.y = northing
+  gps_pose.theta = pose.theta
   
   # publish
   global pub
@@ -97,7 +110,7 @@ def gps(loc):
 
   return
 
-# IMPLEMENT!!!
+# handles data from imu
 def imu(data):
   # getting the necessary data from the imu readings
   xAccel = data.linear_acceleration.x
@@ -116,6 +129,11 @@ def imu(data):
     twist = 0
   
   global imu_pose
+  
+  # integrating to get pose from vel/twist
+  imu_pose.x = vel * timeElapsed * math.cos(imu_pose.theta) + imu_pose.x
+  imu_pose.y = vel * timeElapsed * math.sin(imu_pose.theta) + imu_pose.y
+  imu_pose.theta = twist * timeElapsed + imu_pose.theta
   
   return
 
