@@ -62,6 +62,11 @@ class Servo:
         # print str(self.angle)
         return
 
+    def set_limits(self, lower, upper):
+      self.lower_lim = lower
+      self.upper_lim = upper
+      return
+
 def main():
     print "main method"
     servo = Servo()
