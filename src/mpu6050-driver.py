@@ -15,13 +15,13 @@ temp = [0x41, 0x42]
 current_time = lambda: int(round(time.time()))
 
 def read (imu, addr, scale = 1.0, bias = 0.0):
-  "Reads data from addresses specified [MSB, LSB] and returns a decimal"
+  """Reads data from addresses specified [MSB, LSB] and returns a decimal"""
   raw = [imu.readS8(addr[0]), imu.readU8(addr[1])]
   combined = raw[0] * 256 + raw[1]
   return combined / scale - bias
 
 def calibrate (imu, addrs, samples = 100, freq = 10.):
-  "Averages a number of samples taken at a certain frequency over addresses"
+  """Averages a number of samples taken at a certain frequency over addresses"""
   global zeros
   zeros = [0] * len(addrs)
 
@@ -40,6 +40,7 @@ def calibrate (imu, addrs, samples = 100, freq = 10.):
   return zeros
 
 def make_header():
+  """Returns a ROS header object with time, sequence and frame_id = 0"""
   global seq
   header = Header()
   header.seq = seq
@@ -50,12 +51,15 @@ def make_header():
   return header
 
 def read_gyros():
-  return read_mult(gyro, scale=131.)
+  """Returns all the gyroscope readings"""
+  return read_mult(gyro, scale=131.) # scale from MPU6050 docs
 
 def read_accels():
-  return read_mult(accel, scale=16384.)
+  """Returns all accelerometer readings"""
+  return read_mult(accel, scale=16384.) # scale from MPU6050 docs
 
 def read_mult(addrs, scale=1):
+  """Utility method to read 3 axis data into Vector3 object"""
   result = Vector3()
   vals = []
   for i in range(len(addrs)):
@@ -65,7 +69,7 @@ def read_mult(addrs, scale=1):
   return result
 
 def talker():
-
+  """Initializes the publisher node"""
   global pub
   pub = rospy.Publisher('mpu6050', Imu)
   rospy.init_node('MPU6050-Driver')
