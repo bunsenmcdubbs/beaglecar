@@ -26,8 +26,10 @@ lat_conv = 111200
 # current target (ignore direction)
 target = Pose2D()
 
+# time of last update
 time
 
+# flag for jumping
 jumping = False
 
 # updates the time and returns the elapsed time
@@ -41,40 +43,40 @@ def updateTime(new_time):
 def gps(loc):
   # get the time elapsed
   timeElapsed = updateTime(loc.header.stamp)
-  
+
   # calculating easting and northing relative to arbitrary
   # origin point in meters
   easting = (loc.longitude - origin.x) * long_conv
   northing = (loc.latitude - origin.y) * lat_conv
-  
-  
+
+
   # default trust values
   # gps = raw gps data
   # imu = dead reckoning estimates
   gpsTrust = 0.9
   imuTrust = 0.1
-  
+
   # special edge case if the car is in initialization
   # first estimate is 100% GPS
   global init_phase, gps_pose
   if init_phase:
     init_phase = False
-    
+
     gps_pose.x = easting
     gps_pose.y = northing
-    
+    # at start - 100% trust on gps
     gpsTrust = 1.0
     imuTrust = 0.0
     print "initialization phase"
-  
-  else: 
+
+  else:
     global jumping, pose, imu_pose
     # trying to predict where the car should be from imu data => velocity
     # very similar to the regular imu updates but changed slightly
     xGuess = math.cos(pose.theta) * (vel * timeElapsed) + imu_pose.x
     yGuess = math.sin(pose.theta) * (vel * timeElapsed) + imu_pose.y
     tGuess = twist * timeElapsed + imu_pose.theta
-    
+
     # if current estimate is more than 3 meters away from gps ... JUMP!
     if math.pow(xGuess - easting, 2) + math.pow(yGuess - northing, 2) > 9:
       # jump detected
@@ -84,25 +86,29 @@ def gps(loc):
       imuTrust = 0.8
     else:
       jumping = False
-      
+
+  # make sure total trust = 1 (aka complete weighted average)
+  assert gpsTrust + imuTrust == 1
+
   # calculate the weighted average between gps and imu guesses
   pose.x = easting * gpsTrust + imu_pose.x * imuTrust
   pose.y = northing * gpsTrust + imu_pose.y * imuTrust
   # continue for heading estimate when not jumping
+  # 
   if not jumping:
     # currently 100% using gps for heading
     pose.theta = math.atan2(gps_pose.y - northing, gps_pose.x - easting) * gpsTrust # + imu_pose.theta * imuTrust
   else:
     pose.theta = imu_pose.theta
-  
+
   # reset the imu/dead reckoning guess to the latest estimate
   imu_pose = pose
-  
+
   # update gps_pose with latest raw gps data
   gps_pose.x = easting
   gps_pose.y = northing
   gps_pose.theta = pose.theta
-  
+
   # publish
   global pub
   rospy.loginfo(pose)
@@ -115,9 +121,9 @@ def imu(data):
   # getting the necessary data from the imu readings
   xAccel = data.linear_acceleration.x
   zTurn = data.angular_velocity.z
-  
+
   timeElapsed = updateTime(data.header.stamp)
-  
+
   global vel, twist
   # checking for significance, greater than noise threshold
   if math.fabs(xAccel) > 0.1: # !!!! DUMMY VALUE ... NEEDS TESTING
@@ -127,14 +133,14 @@ def imu(data):
     twist = zTurn
   else:
     twist = 0
-  
+
   global imu_pose
-  
+
   # integrating to get pose from vel/twist
   imu_pose.x = vel * timeElapsed * math.cos(imu_pose.theta) + imu_pose.x
   imu_pose.y = vel * timeElapsed * math.sin(imu_pose.theta) + imu_pose.y
   imu_pose.theta = twist * timeElapsed + imu_pose.theta
-  
+
   return
 
 def main():
@@ -146,9 +152,10 @@ def main():
   rospy.Subscriber("mpu6050", Imu, imu) # IMU
   # sets up the publisher
   global pub
-  pub = rospy.Publisher('loc', Pose2D) # publishes Pose2D messages on the loc topic
+  # publishes Pose2D messages on the "loc" topic
+  pub = rospy.Publisher('loc', Pose2D)
   rospy.init_node('locator')
-  
+
   global time
   time = rospy.get_rostime()
 
