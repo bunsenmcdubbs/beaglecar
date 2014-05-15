@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import rospy, math
-from geometry_msgs.msg import Pose2D, Vector3D
+from geometry_msgs.msg import Pose2D, Vector3
 from drive import Car
 
 p = 0.5
@@ -44,7 +44,6 @@ def steer(pose):
   if math.pow(dx, 2) + math.pow(dy, 2) < 2.25:
     capturedTarget()
 
-  global p, target
   current_heading = pose.theta
   desired_heading = math.arctan2( dy, dx )
 

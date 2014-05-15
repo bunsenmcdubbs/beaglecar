@@ -1,18 +1,18 @@
 #!/usr/bin/env python
 import rospy, math
-from servo_control import Servo
+from servo_controller import Servo
 import Adafruit_BBIO.GPIO as GPIO
 import Adafruit_BBIO.PWM as PWM
 
 class Car:
-  def __init__(self, s_pin = "P8_13", f_pin = "P9_14", b_pin = "P9_22", debug = false):
+  def __init__(self, s_pin = "P8_13", f_pin = "P9_14", b_pin = "P9_22", debug = False):
     # initialize servo for steering
     self.steer = Servo(s_pin)
     # save PWM pins for forward and reverse
     self.forward = f_pin
     self.reverse = b_pin
     # start servos and motors
-    start()
+    self.start()
     # center the steering
     center_steering()
 
