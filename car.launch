@@ -1,0 +1,9 @@
+<launch>
+	<node pkg="beaglecar" name="locator" type="locator.py"/>
+	<node pkg="beaglecar" name="navigator" type="navigator.py"/>
+	<node pkg="beaglecar" name="mpu6050_driver" type="mpu6050_driver.py"/>
+	<node pkg="nmea_navsat_driver" name="gps_driver" type="nmea_serial_driver">
+		<param name="port"  value="/dev/ttyO1" type="str"/>
+		<param name="baud" value="9600" type="int"/>
+	</node>
+</launch>
